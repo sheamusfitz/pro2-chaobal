@@ -17,11 +17,11 @@ xb0_raw = 3
 va0_raw = 0
 vb0_raw = 0
 
-n_cols=6000 #the number of collisions to calculate
+n_cols=20000 #the number of collisions to calculate
 
 #Exact calculations: timesteps
 dt = 0.1
-part2steps = 4000
+part2steps = 1000
 
 #higher values of tau give fewer points in the autocorrelation function
 tau = 10
@@ -414,7 +414,9 @@ plyt.show()
 
 #	#	#	#	#	#	#	#	#	#	#	#	#	#	#	
 # question 6
-
+#
+#
+'''
 ma_raw = 1.0
 mb_raw = 9
 xa0_raw = 1
@@ -445,11 +447,78 @@ for i in range(n):
 	iblue  = (1-ired) #.4*np.cos(3.14*(i+4)/12)+.5
 	plyt.plot(xb,vb,'.', markersize=1,c=[ired, igreen, iblue])
 	va0_raw += some_step
-	#print(va0_raw)
+	print(i,'::   ',va0_raw)
 
 plyt.xlim(right = 1)
 plyt.show()
+'''
+#
+#
+#
+#	#	#	#	#	#	#	#	#	#	#	#	#	#	#	
 
 
 
-	
+#	#	#	#	#	#	#	#	#	#	#	#	#	#	#	
+#question 7
+#
+#
+
+ma_raw = 1.0
+mb_raw = 9
+xa0_raw = 1
+xb0_raw = 3
+vb0_raw = 0
+
+#stable
+#va0_raw = 14.4
+
+#chaotic
+va0_raw = 0
+
+part1()
+part2()
+
+xb_ex_0 = xb_ex
+
+xb0_raw += xb0_raw*(10**(-6))
+
+xb_ex = np.zeros(part2steps)
+
+part1()
+part2()
+
+xb_ex_1 = xb_ex
+
+delta_xb = np.fabs(xb_ex_1-xb_ex_0)
+
+plyt.figure()
+plyt.subplot(121)
+plyt.plot(t_ex,xb_ex_1,'r+',t_ex,xb_ex_0,'bx', markersize=3)
+plyt.subplot(122)
+plyt.plot(t_ex,delta_xb,'.', markersize=1)
+#plyt.yscale('log')
+plyt.show()
+
+#
+#
+#
+#	#	#	#	#	#	#	#	#	#	#	#	#	#	#	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
