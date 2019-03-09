@@ -8,7 +8,7 @@ import matplotlib.pyplot as plyt
 #	#	#	#	#	#	#	#	#	#	#
 #		INITIAL CONDITIONS HERE			#
 ma_raw = 1.0
-mb_raw = 0.001
+mb_raw = 9.5
 
 #				make xa0<xb0			#
 xa0_raw = 1
@@ -17,12 +17,14 @@ xb0_raw = 3
 va0_raw = 0
 vb0_raw = 0
 
-n_cols=1000 #the number of collisions to calculate
-modcount = int(n_cols/20)
+n_cols=6000 #the number of collisions to calculate
 
 #Exact calculations: timesteps
-dt = 0.01
-part2steps = 30000
+dt = 0.1
+part2steps = 4000
+
+#higher values of tau give fewer points in the autocorrelation function
+tau = 10
 
 
 #										#
@@ -39,7 +41,12 @@ g_raw=9.81
 e_raw=.5*ma_raw*va0_raw**2+.5*mb_raw*vb0_raw**2+(ma_raw*xa0_raw+mb_raw*xb0_raw)*g_raw
 #print(f'2-total energy e_raw = {e_raw}')
 
+
+
 def normalize(ma_raw,mb_raw,xa0_raw,xb0_raw,va0_raw,vb0_raw):
+	g_raw=9.81
+	e_raw=.5*ma_raw*va0_raw**2+.5*mb_raw*vb0_raw**2+(ma_raw*xa0_raw+mb_raw*xb0_raw)*g_raw
+	#print(f'2-total energy e_raw = {e_raw}')
 	# definition of normalization units:
 	m=ma_raw+mb_raw
 	x_n=e_raw/(m*g_raw)
@@ -55,14 +62,12 @@ def normalize(ma_raw,mb_raw,xa0_raw,xb0_raw,va0_raw,vb0_raw):
 	
 	va0=va0_raw/v_n
 	vb0=vb0_raw/v_n
+	#print(va0)
 	
 	#e_test = .5*ma*va0**2+.5*mb*vb0**2+ma*xa0+mb*xb0
-	#print(f'3-total normalized energy \'{e_test}\' should be basically 1')
+	#print(f'total normalized energy \'{e_test}\' should be basically 1')
 	
 	return ma,mb,xa0,xb0,va0,vb0
-
-
-
 
 
 
@@ -72,12 +77,19 @@ xb=np.zeros(n_cols)
 va=np.zeros(n_cols)
 vb=np.zeros(n_cols)
 
+
+'''
+-this is the list of ground bounce times. The point of this is so that I can
+ track the full list, to be used for exact motion tracking. Similarly, there 
+ are xigg and vigg for i==a,b
+'''
+
 tgg =np.zeros(part2steps)
 xagg=np.zeros(part2steps)
 xbgg=np.zeros(part2steps)
 vagg=np.zeros(part2steps)
 vbgg=np.zeros(part2steps)
-'''this is the list of ground bounce times. The point of this is so that I can track the full list, to be used for exact motion tracking. Similarly, there are xigg and vigg for i==a,b'''
+
 
 
 def part1():
@@ -199,15 +211,24 @@ def part1():
 # 	print(np.sqrt(np.mean(np.square(tdif))))
 	
 	#poincaré section==> psec
+
+	'''
 	plyt.figure()	
 	plyt.plot(xb,vb,'k.', markersize=1)
 	plyt.title('yeh')
 	plyt.show()
-		
-part1()
+	'''
+
+
 #print(tgg.size,n_cols)
 
 #print(xa)
+
+t_ex  = np.zeros(part2steps)
+xa_ex = np.zeros(part2steps)
+xb_ex = np.zeros(part2steps)
+
+
 
 def part2():
 	#looping indeces
@@ -226,9 +247,14 @@ def part2():
 	j_max = tgg.size-1
 	
 	
-	t_ex  = np.zeros(part2steps)
-	xa_ex = np.zeros(part2steps)
-	xb_ex = np.zeros(part2steps)
+	
+	'''
+	commenting b/c i need these in the next part as well, so they're getting initialized
+	outside of part2()	
+	'''
+#	t_ex  = np.zeros(part2steps)
+# 	xa_ex = np.zeros(part2steps)
+# 	xb_ex = np.zeros(part2steps)
 	xa_ex[0] = xa[0]
 	xb_ex[0] = xb[0]
 	va_ex = np.zeros(part2steps)
@@ -276,13 +302,154 @@ def part2():
 	for n in range(part2steps):
 		t_ex[n]=n*dt
 #		print(t_ex[n])
-	
+	'''	
 	plyt.figure()
-#	plyt.plot(t_ex,xa_ex,t_ex,xb_ex,markersize=1)	
-	plyt.plot(t_ex,xa_ex,'.',t_ex,xb_ex,'.',markersize=1)
+	plyt.plot(t_ex,xa_ex,t_ex,xb_ex,markersize=1)	
+#	plyt.plot(t_ex,xa_ex,'.',t_ex,xb_ex,'.',markersize=1)
 	#Axes.set_xlim(right=100)
 	plyt.title('yeh')
 	plyt.show()
 #	print(xb_ex)
-		
+	'''
+	
+
+
+j_max = int(np.floor(part2steps/tau))-2
+t_cor = np.zeros(j_max)
+xa_cor= np.zeros(j_max)
+xb_cor= np.zeros(j_max)
+
+
+def autocor():
+#	num_tau_steps is free to be changed.
+# 	tau = 7
+# 	
+# 	j_max = int(np.floor(part2steps/tau))-2
+# 	
+# 	t_cor = np.zeros(j_max)
+# 	xa_cor= np.zeros(j_max)
+# 	xb_cor= np.zeros(j_max)
+	
+	global xa_cor,xb_cor
+	
+	j=0
+	i=0
+	
+	for j in range(j_max):
+		t_cor[j] = j*tau*dt
+		i_max = (part2steps)-tau*(j+1)
+		for i in range (i_max):
+			xa_cor[j] += xa_ex[i]*xa_ex[i+tau*(j+1)]/i_max
+			xb_cor[j] += xb_ex[i]*xb_ex[i+tau*(j+1)]/i_max
+	
+	'''
+	-okay this seems to work, i have to normalize this ish now
+	-i'm sure numpy has more efficient ways of doing this but i don't really 
+	need to have a hyper efficient method here. 
+	'''
+	xa_cor_avg = np.mean(xa_cor)
+	xb_cor_avg = np.mean(xb_cor)
+	# for j in range(j_max):
+# 		xa_cor[j] = xa_cor[j]-xa_cor_avg
+# 		xb_cor[j] = xb_cor[j]-xb_cor_avg
+	xa_cor = xa_cor-xa_cor_avg
+	xb_cor = xb_cor-xb_cor_avg	
+	xa_cor = xa_cor/np.sqrt(np.mean(np.square(xa_cor)))
+	xb_cor = xb_cor/np.sqrt(np.mean(np.square(xb_cor)))
+
+	
+	
+	
+	
+#	print(xb_ex)
+
+'''		
+part1()
 part2()
+autocor()
+'''
+
+
+
+#	#	#	#	#	#	#	#	#	#	#	#	#	#	#	#	
+#question 5
+'''
+ma_raw = 1.0
+mb_raw = 9.7
+xa0_raw = 1
+xb0_raw = 3
+
+va0_raw = 0
+vb0_raw = 0
+
+n_cols=10000 #the number of collisions to calculate
+modcount = int(n_cols/20)
+
+#Exact calculations: timesteps
+dt = 0.1
+part2steps = 4000
+
+#higher values of tau give fewer points in the autocorrelation function
+tau = 10
+
+part1()
+part2()
+autocor()
+
+plyt.figure()
+plyt.subplot(311)
+plyt.title(mb_raw)
+plyt.plot(xb,vb,'k.', markersize=1)
+plyt.subplot(312)
+#	plyt.plot(t_ex,xa_ex,t_ex,xb_ex,markersize=1)	
+plyt.plot(t_ex,xa_ex,'b.',t_ex,xb_ex,'r.',markersize=1)
+#Axes.set_xlim(right=100)
+#	print(xb_ex)
+plyt.subplot(313)
+plyt.plot(t_cor,xa_cor,'b.',t_cor,xb_cor,'r.',markersize=1)
+#	plyt.plot(t_cor,xa_cor,t_cor,xb_cor)
+plyt.show()
+'''
+
+
+#	#	#	#	#	#	#	#	#	#	#	#	#	#	#	
+# question 6
+
+ma_raw = 1.0
+mb_raw = 9
+xa0_raw = 1
+xb0_raw = 3
+
+va0_raw = 0
+vb0_raw = 0
+
+#Exact calculations: timesteps
+dt = 0.1
+part2steps = 4000
+
+#higher values of tau give fewer points in the autocorrelation function
+tau = 5
+
+
+
+plyt.figure()
+
+some_step = 1.2
+n = 12
+for i in range(n):
+	some_color = i/n
+	#print(i)
+	part1()
+	ired   = 1-i/n
+	igreen = 0
+	iblue  = (1-ired) #.4*np.cos(3.14*(i+4)/12)+.5
+	plyt.plot(xb,vb,'.', markersize=1,c=[ired, igreen, iblue])
+	va0_raw += some_step
+	#print(va0_raw)
+
+plyt.xlim(right = 1)
+plyt.show()
+
+
+
+	
