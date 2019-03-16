@@ -1,0 +1,172 @@
+#   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
+  #   #   #   #   #   #   #   #   #   #   #   #   #   #   #  
+#   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
+
+Code for m1 autocorrelation
+----------------------------------
+plyt.subplot(311)
+plyt.plot(t_cor*t_n,xa_cor*x_n,t_cor*t_n,xb_cor*x_n,markersize=1)
+plyt.xlim(left = -3)
+plyt.legend(['$x_a$','$x_b$'],loc=0)
+plyt.ylabel('$x$ (m)')
+
+plyt.subplot(312)
+plyt.plot(t_cor*t_n,xb_cor*x_n,'C1')
+plyt.xlim(right = 20,left = -.5)
+plyt.ylabel('$x$ (m)')
+plyt.legend(['$x_b$'],loc=0)
+
+plyt.subplot(313)
+plyt.plot(t_cor*t_n,xa_cor*x_n,'C0')
+plyt.xlim(right = 20,left = -.5)
+plyt.xlabel('$\\tau$ (s)')
+plyt.ylabel('$x$ (m)')
+plyt.legend(['$x_a$'],loc=0)
+plyt.subplots_adjust(hspace=0.2)
+#	plyt.plot(t_cor,xa_cor,t_cor,xb_cor)
+plyt.show()
+
+#   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
+  #   #   #   #   #   #   #   #   #   #   #   #   #   #   #  
+#   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
+
+Print Code for part 7: chaotic case
+----------------------------------
+ma_raw = 1.0
+mb_raw = 9
+xa0_raw = 1
+xb0_raw = 3
+vb0_raw = 0
+
+#stable
+#va0_raw = 13.2
+
+#chaotic
+va0_raw = 0
+x = np.linspace(0.0,400,400)
+y = 10**(-8)*(np.exp(1*x))
+
+part1()
+part2()
+
+xb_ex_0 = xb_ex
+
+xb0_raw += xb0_raw*(10**(-6))
+
+xb_ex = np.zeros(part2steps)
+
+part1()
+part2()
+
+xb_ex_1 = xb_ex
+
+delta_xb = np.fabs(xb_ex_1-xb_ex_0)
+
+
+
+plt.figure()
+
+plt.subplot(311)
+plt.plot(xb*x_n,vb*v_n,'k.', markersize=1)
+plt.title('Poincaré Section')
+plt.xlabel('$x_b$ (m)')
+plt.ylabel('$v_b$ (m/s)')
+plt.xlim(left=0,right=3)
+plt.ylim(top = 8,bottom = -8)
+
+plt.subplot(312)
+plt.title('Height of particle $b$')
+plt.plot(t_ex*t_n,xb_ex_1*x_n,'r',t_ex*t_n,xb_ex_0*x_n,'k:',markersize=3)
+#plt.plot(t_ex*t_n,xa_ex*x_n,',')
+plt.xlabel('$t$ (s)')
+plt.ylabel('$x_b$ (m)')
+plt.legend(['$x_{a,0}=1$','$\\tilde{x}_{a,0}=1.000001$'],loc=3)
+plt.xlim(left=-1,right=25)
+
+
+plt.subplot(313)
+plt.plot(t_ex*t_n,delta_xb*x_n,'.', markersize=1)
+plt.ylim(bottom = 10**-8)
+plt.xlim(left=-1,right=25)
+plt.yscale('log')
+plt.title('Lyapunov Exponent')
+plt.plot(x,y)
+plt.xlabel('$t$ (s)')
+plt.ylabel('$x$ (m)')
+plt.legend(['$x_b(t)-\\tilde{x}_b(t)$','$10^{-8}e^{1x}$'],markerscale=7)
+plt.tight_layout()
+plt.show()
+
+#   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
+  #   #   #   #   #   #   #   #   #   #   #   #   #   #   #  
+#   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
+Print Code for part 7: Stable case
+----------------------------------
+ma_raw = 1.0
+mb_raw = 9
+xa0_raw = 1
+xb0_raw = 3
+vb0_raw = 0
+
+#stable
+va0_raw = 13.2
+x = np.linspace(0.0,400,400)
+y = 10**(-6)*(np.exp(0.0075*x))
+
+#chaotic
+# va0_raw = 0
+# x = np.linspace(0.0,400,400)
+# y = 10**(-8)*(np.exp(1*x))
+
+part1()
+part2()
+
+xb_ex_0 = xb_ex
+
+xb0_raw += xb0_raw*(10**(-6))
+
+xb_ex = np.zeros(part2steps)
+
+part1()
+part2()
+
+xb_ex_1 = xb_ex
+
+delta_xb = np.fabs(xb_ex_1-xb_ex_0)
+
+
+
+plt.figure()
+
+plt.subplot(311)
+plt.plot(xb*x_n,vb*v_n,'k.', markersize=1)
+plt.title('Poincaré Section')
+plt.xlabel('$x_b$ (m)')
+plt.ylabel('$v_b$ (m/s)')
+plt.xlim(left=0,right=3)
+plt.ylim(top = 8,bottom = -8)
+
+plt.subplot(312)
+plt.title('Height of particle $b$')
+plt.plot(t_ex*t_n,xb_ex_1*x_n,'r',t_ex*t_n,xb_ex_0*x_n,'k:',markersize=3)
+#plt.plot(t_ex*t_n,xa_ex*x_n,',')
+plt.xlabel('$t$ (s)')
+plt.ylabel('$x_b$ (m)')
+plt.legend(['$x_{a,0}=1$','$\\tilde{x}_{a,0}=1.000001$'],loc=3)
+plt.xlim(left=-1,right=25)
+
+
+plt.subplot(313)
+plt.plot(t_ex*t_n,delta_xb*x_n,'.', markersize=1)
+plt.ylim(bottom = 8*10**-7)
+plt.xlim(left=-1,right=60)
+plt.yscale('log')
+plt.title('Lyapunov Exponent')
+plt.plot(x,y)
+plt.xlabel('$t$ (s)')
+plt.ylabel('$x$ (m)')
+plt.legend(['$x_b(t)-\\tilde{x}_b(t)$','$10^{-6}e^{0.0075x}$'],markerscale=7,loc=4)
+#										10**(-6)*(np.exp(0.0075*x))
+plt.tight_layout()
+plt.subplots_adjust(hspace=0.7)
+plt.show()
